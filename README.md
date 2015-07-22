@@ -11,7 +11,7 @@ cabal update
 cabal install rei
 
 # $PATH should contain ~/.cabal/bin directory
-# (for bash):
+# (example for bash):
 PATH=$PATH:~/.cabal/bin
 export PATH
 ```
@@ -19,9 +19,9 @@ export PATH
 ## Getting started
 
 ```
-rei                      "rname x y -> rname y x" example.csv
-rei unite            example_left.csv example_right.csv
-rei melt2          example_condensed.csv
+rei "rname x y -> rname y x" example.csv
+rei unite   example_left.csv example_right.csv
+rei melt2  example_condensed.csv
 rei condense2 example_melted.csv
 ```
 

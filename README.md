@@ -20,8 +20,8 @@ export PATH
 
 ```
 rei "rname x y -> rname y x" example.csv
-rei unite   example_left.csv example_right.csv
-rei melt2  example_condensed.csv
+rei unite example_left.csv example_right.csv
+rei melt2 example_condensed.csv
 rei condense2 example_melted.csv
 ```
 
@@ -242,10 +242,3 @@ TODO
 
 * guessing delimiters for "bioinformatic" formats, like .sam, .vsf, etc.
 
-### Sources
-
-* [Parsec examples](https://github.com/JakeWheat/intro_to_parsing)
-* [Parsec to parse files](https://www.fpcomplete.com/school/starting-with-haskell/libraries-and-frameworks/text-manipulation/attoparsec)
-* [Faster than C++](http://newartisans.com/2012/08/parsing-with-haskell-and-attoparsec/)
-* [Argument handling in Haskell](https://wiki.haskell.org/Tutorials/Programming_Haskell/Argument_handling)
-* [Command line options in Haskell](http://leiffrenzel.de/papers/commandline-options-in-haskell.html)

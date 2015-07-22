@@ -4,7 +4,12 @@ While originally *rei* was not intended to be an abbreviation, one may think of 
 
 ## Installation
 
-TODO
+`rei` can be installed from `hackage` using `cabal`:
+
+```
+cabal update
+cabal install rei
+```
 
 ## Getting started
 

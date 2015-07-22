@@ -4,12 +4,12 @@
 name:                rei
 version:             0.1.0.0
 synopsis:            Process lists easily
--- description:         
+description:         A tool built for processing lists easily
 homepage:            https://github.com/kerkomen/rei
 license:             MIT
 license-file:        LICENSE
 author:              Daniel
--- maintainer:          
+maintainer:          Daniel
 -- copyright:           
 category:            Data
 build-type:          Simple

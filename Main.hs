@@ -368,26 +368,6 @@ main = do
 		| otherwise = error "Something's wrong with the rule. There might be multiple ellipsis signs."
 				
 
-	-- TODO: remove
-	--let correctOrder' ns xs = before_ell ++ inside_ell ++ after_ell
-	--	where
-	--		(k, _)       = splitMargins ell (words after) 
-	--		(prex, sufx) = splitMargins ell (words before)
-	--		before_ell
-	--			| rightEllipsis  = map (proceed shift) $ Prelude.take k ns
-	--			| otherwise      = map (proceedSkip prex) ns 
-	--		inside_ell 
-	--			| rightEllipsis  = [ prex .. lxs - sufx - 1 ]
-	--			| otherwise 	 = []
-	--		after_ell  
-	--			| rightEllipsis  = map (proceed shift) $ drop (k+1) ns
-	--			| otherwise      = []
-	--		proceed s x     = if x > prex then x+s else x
-	--		shift           = lxs - prex - sufx - 1
-	--		proceedSkip a x = if x <= a then x else x + shift
-	--		lxs             = length xs
-	--		rightEllipsis   = sole ell after
-	
 	let correctOrder ns xs = ifEl
 		where
 			(prex, sufx) = splitMargins ell (words before)

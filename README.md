@@ -4,7 +4,7 @@ While originally *rei* was not intended to be an abbreviation, one may think of 
 
 ## Installation
 
-`rei` can be installed from `hackage` using `cabal`:
+`rei` can be easily installed from `hackage` with `cabal` :
 
 ```
 cabal update

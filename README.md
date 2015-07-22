@@ -9,6 +9,11 @@ While originally *rei* was not intended to be an abbreviation, one may think of 
 ```
 cabal update
 cabal install rei
+
+# $PATH should contain ~/.cabal/bin directory
+# (for bash):
+PATH=$PATH:~/.cabal/bin
+export PATH
 ```
 
 ## Getting started

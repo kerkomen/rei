@@ -234,7 +234,7 @@ parseArgs argv = case getOpt Permute options argv of
         where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.1 pre-alpha. July 2015."
+	hPutStrLn stderr "rei: process lists easily. Version 0.2.0.0 (pre-alpha). July 2015."
 	exitWith ExitSuccess
 
 showHelp _    = do
@@ -326,11 +326,11 @@ main = do
 	let getParsed x = parseLine' x fieldSep
 
 	-- Create a union of two files, column-wise
-	when (strip rule == "unite") $ do
+	when (strip rule == "merge") $ do
 		when verbose $ hPutStrLn stderr "Uniting files..."
 		let filename2
 			| length files > 1 = files !! 1
-			| otherwise        = error "Provide two filenames to unite the files\n--  Example: `rei unite f1.ssv f2.ssv`"
+			| otherwise        = error "Provide two filenames to merge the files\n--  Example: `rei merge f1.ssv f2.ssv`"
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
 		leftFile  <- open filename

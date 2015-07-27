@@ -20,7 +20,7 @@ export PATH
 
 ```
 rei "rname x y -> rname y x" example.csv
-rei unite example_left.csv example_right.csv
+rei merge example_left.csv example_right.csv
 rei melt2 example_condensed.csv
 rei condense2 example_melted.csv
 ```
@@ -152,8 +152,7 @@ V,W,X
 Y,Z,0
 ```
 
-As you see, `rei` guessed the delimiter in the input file by its extension — *space-separated values*. The output won't change in the example above if we provide `-f " "`.
-
+As you see, `rei` guessed the delimiter in the input file by its extension — *space-separated values*. The output won't change in the example above if `-f " "` is provided.
 
 TODO
 
@@ -169,22 +168,31 @@ Sometimes there is a need to cut out the header of the file or several lines in 
 
 ### Magic rules
 
-
-There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: melt2, condense2, unite. Each *magic rule* has its own syntax.
-
-TODO
+There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, unique*. Each *magic rule* has its own syntax.
 
 #### **Melt**ing and **condens**ing
 
 TODO
 
-
-
-#### **Unit**ing
+#### **Merg**ing
 
 TODO
 
-### Outputting to file
+#### **Unit**ing
+
+Uniting, or concatenating, several files can be achieved with `unite` rule. This rule has a synonym: `concatenate`, or `concat` for short. While simple file concatenation can be achieved using UNIX  `cat` tool, `rei unite <...>` has to acknowledge the delimiter symbol (which should be the same for all input files) and can change the delimiter symbol for the whole output.
+
+TODO
+
+#### **Join**ing
+
+TODO
+
+#### Retrieving **unique** data
+
+TODO
+
+### Naming pattern
 
 The default behaviour for `rei` is to give the output to `stdout`. That allows `rei` to be easily embedded  into workflows and pipelines. 
 
@@ -198,18 +206,17 @@ rei "x y z -> z" "testfile_(in -> out).csv"
 The two examples above are almost equivalent, but when using *naming pattern* `(in -> out)` the output file should not exist, otherwise `rei` throws an error with the corresponding message. *Naming pattern* also makes the command shorter and the idea behind it easier to understand:
 
 ```sh
-rei "rn _ _ expr3 -> rn expr3" brain_expression(_all -> _adults).csv
+rei "rn _ _ expr3 -> rn expr3" "brain_expression(_all -> _adults).csv"
 ```
 
 No space characters, or `<` / `>`, or parenthesis are allowed in file names if *naming pattern* is used.
 
 ### Sophisticated examples
 
-Skip rownames and colnames, than calculate mean of every row, than append the new column to the file from the second row, and to the first row the title "mean" is added:
+Skip rownames and colnames:
 
 ```sh
-> rei --skip 1 "rownames ... -> ... => mean" | \
-       rei --magic "unite" --colnames "<< Mean" example.ssv -
+> rei --skip 1 "rownames ... -> ..." example.ssv
 ```
 
 It's easy to merge several files, and turn the output to .csv:
@@ -226,7 +233,7 @@ TODO
 - uniting data
 - merging data
 
-## Some more notes
+## Notes
 
 ### Errors and warnings
 

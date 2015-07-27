@@ -2,7 +2,7 @@
 -- see http://haskell.org/cabal/users-guide/
 
 name:                rei
-version:             0.1.0.1
+version:             0.2.0.0
 synopsis:            Process lists easily
 description:         A tool built for processing lists easily
 homepage:            https://github.com/kerkomen/rei

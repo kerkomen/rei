@@ -268,6 +268,8 @@ melter (a:b:xs) = ( [a,b]:(melter (a:xs)) )
 melt2 :: [[t]] -> [[t]]
 melt2 input = foldr (++) [] . map melter $ input
 
+mzip :: [[a]] -> [[a]] -> [[a]]
+mzip a b = map (\(x,y) -> x++y) ( zip a b )
 
 main = do
 	(opts, args) <- getArgs >>= parseArgs
@@ -325,32 +327,46 @@ main = do
 				Just m' = m
 	let getParsed x = parseLine' x fieldSep
 
+	let rule' = strip rule
+
 	-- Create a union of two files, column-wise
-	when (strip rule == "merge") $ do
+	when (rule' == "merge") $ do
 		when verbose $ hPutStrLn stderr "Uniting files..."
-		let filename2
-			| length files > 1 = files !! 1
-			| otherwise        = error "Provide two filenames to merge the files\n--  Example: `rei merge f1.ssv f2.ssv`"
+		let several_files
+			| length files > 1 = files
+			| otherwise        = error "Provide at least two files to merge\n--  Example: `rei merge f1.ssv f2.ssv`"
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
-		leftFile  <- open filename
-		rightFile <- open filename2
-		mapM_ print' $ map (\(x,y) -> x++y) $ zip (parseActions leftFile) (parseActions rightFile)
+		filesContents <- mapM readFile several_files
+		mapM_ print' $ foldl1 mzip ( map parseActions filesContents )
 		exitWith ExitSuccess
 
 	-- Condense the first two columns of the file
-	when (strip rule == "condense2") $ do
+	when (rule' == "condense2") $ do
 		when verbose $ hPutStrLn stderr "Condensing a file..."
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		mapM_ print' . condense2 . map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
 		exitWith ExitSuccess
 
 	-- Melt the file into two-column file
-	when (strip rule == "melt2") $ do
+	when (rule' == "melt2") $ do
 		when verbose $ hPutStrLn stderr "Melting a file..."
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		mapM_ print' . melt2 . map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
 		exitWith ExitSuccess
+
+	-- Concatenate files, row-wise
+	when (rule' == "unite" || rule' == "concatenate" || rule' == "concat") $ do
+		when verbose $ hPutStrLn stderr "Uniting files..."
+		let several_files
+			| length files > 1 = files
+			| otherwise        = error "Provide at least two files to unite\n--  Example: `rei unite f1.ssv f2.ssv`"
+		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
+		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
+		filesContents <- mapM readFile several_files
+		mapM_ print' $ concatMap parseActions filesContents
+		exitWith ExitSuccess
+
 
 	let (before, after) 
 		| matchResult == [] = error "Something's wrong with the rule. The rule must have two sets of column descriptors separated by the arrow.\n-- Example: `rei \"a b -> b a\" example.ssv`"

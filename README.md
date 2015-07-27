@@ -49,15 +49,11 @@ There's several ways to provide `rei` with the content of the file. The first on
 Let's use a small sample file with spaces as delimiters for these examples (saved as `0.ssv`):
 
 ```
-A B C
-D E F
-G H I
-J K L
-M N O
-P Q R
-S T U
-V W X
-Y Z 0
+A B C D E
+F G H I J
+K L M N O
+P Q R S T
+U V W X Y
 ```
 
 This is how easily we can address the columns:
@@ -65,14 +61,10 @@ This is how easily we can address the columns:
 ```sh
 > rei "a b c -> c b a" 0.ssv
 C B A
-F E D
-I H G
-L K J
-O N M
+H G F
+M L K
 R Q P
-U T S
-X W V
-0 Z Y
+W V U
 ```
 
 The columns are now in the reversed order.
@@ -82,14 +74,10 @@ We can extract the columns that we need:
 ```sh
 > rei "a b c -> b" 0.ssv
 B
-E
-H
-K
-N
+G
+L
 Q
-T
-W
-Z
+V
 ```
 
 It is possible to define only columns needed:
@@ -97,29 +85,21 @@ It is possible to define only columns needed:
 ```sh
 > rei "a b -> a b" 0.ssv
 A B
-D E
-G H
-J K
-M N
+F G
+K L
 P Q
-S T
-V W
-Y Z
+U V
 ```
 
 You may want to keep the rest of the columns, here's how you can accomplish that:
 
 ```sh
 > rei "a b ... -> a ..."
-A C
-D F
-G I
-J L
-M O
-P R
-S U
-V X
-Y 0
+A C D E
+F H I J
+K M N O
+P R S T
+U W X Y
 ```
 
 The beauty is that one may give columns descriptive titles. And that is great in so many ways, as it increases readability, productivity, descriptiveness, maintainability and awareness of what's happening with all that list processing. See some real-world examples below.

@@ -370,7 +370,7 @@ main = do
 		exitWith ExitSuccess
 
 	-- Find common rows for several files.
-	when (rule' == "join") $ do
+	when (rule' == "join" || rule' == "intersect") $ do
 		when verbose $ hPutStrLn stderr "Joining files..."
 		let several_files
 			| length files > 1 = files
@@ -378,7 +378,11 @@ main = do
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
 		filesContents <- mapM readFile several_files
-		mapM_ print' $ foldl1 intersect ( map parseActions filesContents )
+		let joined = foldl1 intersect ( map parseActions filesContents )
+		when verbose $ hPutStrLn stderr ("There are " ++ 
+										 show (length joined) ++ 
+										 " common rows.")
+		mapM_ print' $ joined
 		exitWith ExitSuccess
 
 	-- Transpose a list.

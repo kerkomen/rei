@@ -13,7 +13,7 @@ import Data.Word
 
 import Text.Regex.Posix((=~))
 import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
-				 elem, nub, maximumBy, groupBy, intersect)
+				 elem, nub, maximumBy, groupBy, intersect, transpose)
 import Data.List.Split(splitOn, splitWhen)
 import Data.Char(isLetter, isNumber, isSymbol, isSeparator, isPunctuation)
 import Data.Map(fromListWith, toList)
@@ -379,6 +379,13 @@ main = do
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
 		filesContents <- mapM readFile several_files
 		mapM_ print' $ foldl1 intersect ( map parseActions filesContents )
+		exitWith ExitSuccess
+
+	-- Transpose a list.
+	when (rule' == "transpose") $ do
+		when verbose $ hPutStrLn stderr "Transposing a file..."
+		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
+		mapM_ print' . transpose . map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
 		exitWith ExitSuccess
 
 	let (before, after) 

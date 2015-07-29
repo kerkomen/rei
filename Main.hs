@@ -12,7 +12,8 @@ import qualified Data.ByteString.Char8 as B
 import Data.Word
 
 import Text.Regex.Posix((=~))
-import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, elem, nub, maximumBy, groupBy)
+import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
+				 elem, nub, maximumBy, groupBy, intersect)
 import Data.List.Split(splitOn, splitWhen)
 import Data.Char(isLetter, isNumber, isSymbol, isSeparator, isPunctuation)
 import Data.Map(fromListWith, toList)
@@ -271,6 +272,7 @@ melt2 input = foldr (++) [] . map melter $ input
 mzip :: [[a]] -> [[a]] -> [[a]]
 mzip a b = map (\(x,y) -> x++y) ( zip a b )
 
+
 main = do
 	(opts, args) <- getArgs >>= parseArgs
 	-- putStrLn $ "Flags: " ++ show opts
@@ -329,9 +331,9 @@ main = do
 
 	let rule' = strip rule
 
-	-- Create a union of two files, column-wise
+	-- Create a union of several files, column-wise
 	when (rule' == "merge") $ do
-		when verbose $ hPutStrLn stderr "Uniting files..."
+		when verbose $ hPutStrLn stderr "Merging files..."
 		let several_files
 			| length files > 1 = files
 			| otherwise        = error "Provide at least two files to merge\n--  Example: `rei merge f1.ssv f2.ssv`"
@@ -367,6 +369,17 @@ main = do
 		mapM_ print' $ concatMap parseActions filesContents
 		exitWith ExitSuccess
 
+	-- Find common rows for several files.
+	when (rule' == "join") $ do
+		when verbose $ hPutStrLn stderr "Joining files..."
+		let several_files
+			| length files > 1 = files
+			| otherwise        = error "Provide at least two files to join\n--  Example: `rei join f1.ssv f2.ssv`"
+		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
+		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
+		filesContents <- mapM readFile several_files
+		mapM_ print' $ foldl1 intersect ( map parseActions filesContents )
+		exitWith ExitSuccess
 
 	let (before, after) 
 		| matchResult == [] = error "Something's wrong with the rule. The rule must have two sets of column descriptors separated by the arrow.\n-- Example: `rei \"a b -> b a\" example.ssv`"

@@ -38,14 +38,15 @@ parseRule = do
 
 -- | Guess the delimiter for several known formats
 
-knownFormats = [".csv", ".tsv", ".ssv"]
+knownFormats = [".csv", ".tsv", ".ssv", ".list"]
 
 decideF :: FilePath -> Maybe Char
 decideF flnm
-	| ".csv" `isSuffixOf` flnm = Just ','
-	| ".tsv" `isSuffixOf` flnm = Just '\t'
-	| ".ssv" `isSuffixOf` flnm = Just ' '
-	| otherwise 		   	   = Nothing
+	| ".csv" `isSuffixOf` flnm  = Just ','
+	| ".tsv" `isSuffixOf` flnm  = Just '\t'
+	| ".ssv" `isSuffixOf` flnm  = Just ' '
+	| ".list" `isSuffixOf` flnm = Just ' '
+	| otherwise 		   	    = Nothing
 
 guessF :: String -> Char
 guessF fstLine = mostFreqSymbol

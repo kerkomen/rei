@@ -113,7 +113,8 @@ For some common file formats `rei` doesn't require a delimiter to be provided in
 * .ssv &rarr; space (' '),
 * .csv &rarr; comma (','),
 * .tsv &rarr; tab ('\t'),
-* .txt &rarr; space (' ').
+* .txt &rarr; space (' '),
+* .list &rarr; space (' ').
 
 TODO
 

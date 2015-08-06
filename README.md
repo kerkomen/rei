@@ -219,15 +219,23 @@ P Q R S T
 
 #### *Tranpos*ing data
 
-When you need to transpose the list, you can just do it with `rei`:
+When you need to transpose the list, you can just do it with `rei`. It can be beautifully demonstrated for the following matrix (`1.ssv`):
 
 ```sh
-> rei -g ',' transpose 0.ssv
-A,F,K,P,U
-B,G,L,Q,V
-C,H,M,R,W
-D,I,N,S,X
-E,J,O,T,Y
+11 12 13 14 15
+21 22 23 24 25
+31 32 33 34 35
+41 42 43 44 45
+51 52 53 54 55
+```
+
+```sh
+> rei -g ',' transpose 1.ssv
+11,21,31,41,51
+12,22,32,42,52
+13,23,33,43,53
+14,24,34,44,54
+15,25,35,45,55
 ```
 
 

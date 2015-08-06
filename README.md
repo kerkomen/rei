@@ -120,39 +120,32 @@ For some common file formats `rei` doesn't require a delimiter to be provided in
 * .sam &rarr; tab ('\t'),
 * .vcf &rarr; tab ('\t').
 
-TODO
-
 The flag `-g` is powerful as it allows for fast format conversion. That's how `rei` may be used to convert from .ssv to .csv:
 
 ```sh
 > rei -g ","  "... -> ..." 0.ssv
-A,B,C
-D,E,F
-G,H,I
-J,K,L
-M,N,O
-P,Q,R
-S,T,U
-V,W,X
-Y,Z,0
+A,B,C,D,E
+F,G,H,I,J
+K,L,M,N,O
+P,Q,R,S,T
 ```
 
 As you see, `rei` guessed the delimiter in the input file by its extension — *space-separated values*. The output won't change in the example above if `-f " "` is provided.
-
-TODO
 
 #### Skipping lines
 
 Sometimes there is a need to cut out the header of the file or several lines in its end. It's generally accomplished by combining `head` and/or `tail` programs, piping, etc. Since `rei` is designed for easy list processing, such feature is implemented here. There are flags to define the number of lines to skip in the beginning (`--skip`, or `-s`) or in the end (`--omit`, or `-t`) of the file.
 
-TODO
-
-
+```sh
+> rei -s 1 -t 2 "f g h i j -> f h j" 0.ssv
+F H J
+K M O
+```
 
 
 ### Magic rules
 
-There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, unique*. Each *magic rule* has its own syntax.
+There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, subtract*. Each *magic rule* has its own syntax.
 
 #### **Melt**ing and **condens**ing
 
@@ -160,23 +153,65 @@ TODO
 
 #### **Merg**ing
 
-TODO
+Here, to *merge* several (typically two) lists means to get the data together. With *merge* one can add new columns. If the length of two lists (or tables) differs, the shortest possible list is returned. `rei` cares, as usually, about the delimiters, but not about finding and reassorting rows when data is being merged.
+
+```sh
+> rei merge 0.ssv <(rei -s 1 "a -> a" 0.ssv)
+A B C D E A
+F G H I J F
+K L M N O K
+P Q R S T P
+U V W X Y U
+```
+
 
 #### **Unit**ing
 
 Uniting, or concatenating, several files can be achieved with `unite` rule. This rule has a synonym: `concatenate`, or `concat` for short. While simple file concatenation can be achieved using UNIX  `cat` tool, `rei unite <...>` has to acknowledge the delimiter symbol (which should be the same for all input files) and can change the delimiter symbol for the whole output or skip / omit lines.
 
-TODO
+
+```sh
+> rei unite 0.ssv <(head -n 1 0.ssv)
+A B C D E
+F G H I J
+K L M N O
+P Q R S T
+U V W X Y
+A B C D E
+```
+
 
 #### **Join**ing
 
-```sh
-rei 
+Another useful thing is finding common elements in multiple lists. `rei` allows that with `join`. (In most cases the order of the files provided does not matter. However, if the first file contains duplicates, so will the result.)
+
+Let's prepare a file to join with `0.ssv` and save it as `01.ssv`.
+
+```
+A B C D E
+K L M N O
 ```
 
-#### Retrieving **unique** data
+The code for *join* is straightforward:
 
-TODO
+```sh
+> rei -g ',' join 0.ssv 01.ssv
+A,B,C,D,E
+K,L,M,N,O
+```
+
+
+#### Retrieving unique data with **subtr**
+
+Finding unique elements in multiple lists is not a trivial task for having a clear and concise syntax. To deal with this, `rei` offers a *magic rule* called *subtract* (or *subtr* for short). It behaves exactly as it is titled: takes the first file and removes each row in it only if the row is present in any of the following files.
+
+```sh
+> tail -n 1 0.ssv > 02.ssv
+> rei subtr 0.ssv 01.ssv 02.ssv
+F G H I J
+P Q R S T
+```
+
 
 ### Naming pattern
 
@@ -213,6 +248,8 @@ TODO
 ```
 
 ### Real-world examples
+
+TODO
 
 - .bam files stats
 - date and smth else

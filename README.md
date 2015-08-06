@@ -21,8 +21,12 @@ export PATH
 ```
 rei "rname x y -> rname y x" example.csv
 rei merge example_left.csv example_right.csv
+rei unite example_top.ssv example_bottom.ssv
 rei melt2 example_condensed.csv
 rei condense2 example_melted.csv
+rei join example_foo.ssv example_bar.ssv
+rei subtract minuend.csv subtrahend.csv
+rei transpose example_matrix.ssv
 ```
 
 ### Defining the rule 

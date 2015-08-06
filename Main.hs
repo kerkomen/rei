@@ -42,10 +42,12 @@ knownFormats = [".csv", ".tsv", ".ssv", ".list"]
 
 decideF :: FilePath -> Maybe Char
 decideF flnm
-	| ".csv" `isSuffixOf` flnm  = Just ','
-	| ".tsv" `isSuffixOf` flnm  = Just '\t'
-	| ".ssv" `isSuffixOf` flnm  = Just ' '
+	| ".csv"  `isSuffixOf` flnm = Just ','
+	| ".tsv"  `isSuffixOf` flnm = Just '\t'
+	| ".ssv"  `isSuffixOf` flnm = Just ' '
 	| ".list" `isSuffixOf` flnm = Just ' '
+	| ".sam"  `isSuffixOf` flnm = Just '\t'
+	| ".vcf"  `isSuffixOf` flnm = Just '\t'
 	| otherwise 		   	    = Nothing
 
 guessF :: String -> Char

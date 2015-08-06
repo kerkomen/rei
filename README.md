@@ -91,7 +91,7 @@ P Q
 U V
 ```
 
-You may want to keep the rest of the columns, here's how you can accomplish that:
+You may want to keep the rest of the columns, here's the code for that:
 
 ```sh
 > rei "a b ... -> a ..."
@@ -102,9 +102,11 @@ P R S T
 U W X Y
 ```
 
-The beauty is that one may give columns descriptive titles. And that is great in so many ways, as it increases readability, productivity, descriptiveness, maintainability and awareness of what's happening with all that list processing. See some real-world examples below.
+The beauty is that one may (and sometimes should) give columns descriptive titles. And that is great in so many ways, as it increases readability, productivity, descriptiveness, maintainability and awareness of what's happening with all that list processing. See some real-world examples below.
 
 ### Keywords
+
+#### Delimiters
 
 You can define a delimiter (`-f`, or `--delim`, for the input file and  `-g`, or `--newdelim`, for the output file). It's important to emphasize that only one-character long delimiters are used. Tabulation («\t») is considered one-character too. If multicharacter literal is provided, `rei` uses its first symbol as a delimiter.
 
@@ -114,7 +116,9 @@ For some common file formats `rei` doesn't require a delimiter to be provided in
 * .csv &rarr; comma (','),
 * .tsv &rarr; tab ('\t'),
 * .txt &rarr; space (' '),
-* .list &rarr; space (' ').
+* .list &rarr; space (' '),
+* .sam &rarr; tab ('\t'),
+* .vcf &rarr; tab ('\t').
 
 TODO
 
@@ -137,13 +141,12 @@ As you see, `rei` guessed the delimiter in the input file by its extension — *
 
 TODO
 
-There's also flags to define the number of lines to skip in the beginning (`--skip`, or `-s`) or in the end (`--omit`, or `-t`) of the file.
+#### Skipping lines
+
+Sometimes there is a need to cut out the header of the file or several lines in its end. It's generally accomplished by combining `head` and/or `tail` programs, piping, etc. Since `rei` is designed for easy list processing, such feature is implemented here. There are flags to define the number of lines to skip in the beginning (`--skip`, or `-s`) or in the end (`--omit`, or `-t`) of the file.
 
 TODO
 
-### Skipping lines
-
-Sometimes there is a need to cut out the header of the file or several lines in its end. It's generally accomplished by combining `head` and/or `tail` programs, piping, etc. Since `rei` is designed for easy list processing, such feature is implemented here.
 
 
 
@@ -167,7 +170,9 @@ TODO
 
 #### **Join**ing
 
-TODO
+```sh
+rei 
+```
 
 #### Retrieving **unique** data
 
@@ -224,9 +229,9 @@ TODO
 
 ## Dev
 
-`Rei` is written in Haskell, uses [regular expressions](http://hackage.haskell.org/package/regex-posix) to parse the rule and [Attoparsec](https://hackage.haskell.org/package/attoparsec) to parse the file provided.
+`rei` is written in Haskell, uses [regular expressions](http://hackage.haskell.org/package/regex-posix) to parse the rule and [Attoparsec](https://hackage.haskell.org/package/attoparsec) to parse the file provided.
 
 ### Requests
 
-* guessing delimiters for "bioinformatic" formats, like .sam, .vsf, etc.
+* [x] guessing delimiters for "bioinformatic" formats, like: .sam, .vsf, etc.
 

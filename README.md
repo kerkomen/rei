@@ -269,7 +269,7 @@ Skip rownames and colnames:
 It's easy to merge several files, and turn the output to .csv:
 
 ```sh
-> cat <(rei "a b c -> a c" 0.ssv) <(rei "x y z -> y z" 1.ssv) | rei -f " " -g "," "1 2 -> 1 2" -
+> rei -f ' ' -g ',' unite <(rei "a b c -> a c" 0.ssv) <(rei "x y z -> y z" 1.ssv)
 TODO
 ```
 

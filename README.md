@@ -147,11 +147,11 @@ K M O
 
 There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, subtract*. Each *magic rule* has its own syntax.
 
-#### **Melt**ing and **condens**ing
+#### *Melt*ing and *condens*ing
 
 TODO
 
-#### **Merg**ing
+#### *Merg*ing
 
 Here, to *merge* several (typically two) lists means to get the data together. With *merge* one can add new columns. If the length of two lists (or tables) differs, the shortest possible list is returned. `rei` cares, as usually, about the delimiters, but not about finding and reassorting rows when data is being merged.
 
@@ -165,7 +165,7 @@ U V W X Y U
 ```
 
 
-#### **Unit**ing
+#### *Unit*ing
 
 Uniting, or concatenating, several files can be achieved with `unite` rule. This rule has a synonym: `concatenate`, or `concat` for short. While simple file concatenation can be achieved using UNIX  `cat` tool, `rei unite <...>` has to acknowledge the delimiter symbol (which should be the same for all input files) and can change the delimiter symbol for the whole output or skip / omit lines.
 
@@ -181,7 +181,7 @@ A B C D E
 ```
 
 
-#### **Join**ing
+#### *Join*ing
 
 Another useful thing is finding common elements in multiple lists. `rei` allows that with `join`. (In most cases the order of the files provided does not matter. However, if the first file contains duplicates, so will the result.)
 
@@ -201,15 +201,29 @@ K,L,M,N,O
 ```
 
 
-#### Retrieving unique data with **subtr**
+#### Retrieving unique data with *subtr*
 
-Finding unique elements in multiple lists is not a trivial task for having a clear and concise syntax. To deal with this, `rei` offers a *magic rule* called *subtract* (or *subtr* for short). It behaves exactly as it is titled: takes the first file and removes each row in it only if the row is present in any of the following files.
+Finding differences between multiple lists with a clear and concise syntax is not a trivial task. To deal with this, `rei` offers a *magic rule* called *subtract* (or *subtr* for short). It behaves exactly as it is titled: takes the first file and removes each row in it only if the row is present in any of the following files.
 
 ```sh
 > tail -n 1 0.ssv > 02.ssv
 > rei subtr 0.ssv 01.ssv 02.ssv
 F G H I J
 P Q R S T
+```
+
+
+#### *Tranpos*ing data
+
+When you need to transpose the list, you can just do it with `rei`:
+
+```sh
+> rei -g ',' transpose 0.ssv
+A,F,K,P,U
+B,G,L,Q,V
+C,H,M,R,W
+D,I,N,S,X
+E,J,O,T,Y
 ```
 
 

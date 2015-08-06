@@ -238,7 +238,7 @@ parseArgs argv = case getOpt Permute options argv of
         where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.2.2.0 (pre-alpha). August 2015."
+	hPutStrLn stderr "rei: process lists easily. Version 0.3.0.0 (pre-alpha). August 2015."
 	exitWith ExitSuccess
 
 showHelp _    = do
@@ -275,6 +275,8 @@ melt2 input = foldr (++) [] . map melter $ input
 mzip :: [[a]] -> [[a]] -> [[a]]
 mzip a b = map (\(x,y) -> x++y) ( zip a b )
 
+subtrList :: Eq a => [a] -> [a] -> [a]
+subtrList xs ys = filter (\x -> notElem x ys) xs
 
 main = do
 	(opts, args) <- getArgs >>= parseArgs
@@ -386,6 +388,22 @@ main = do
 										 show (length joined) ++ 
 										 " common rows.")
 		mapM_ print' $ joined
+		exitWith ExitSuccess
+
+	-- Find common rows for several files.
+	when (rule' == "subtract" || rule' == "subtr") $ do
+		when verbose $ hPutStrLn stderr "Subtracting files..."
+		let several_files
+			| length files > 1 = files
+			| otherwise        = error "Provide at least two files to subtract\n--  Example: `rei subtr f1.ssv f2.ssv`"
+		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
+		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
+		filesContents <- mapM readFile several_files
+		let elemsUniq = foldl1 subtrList ( map parseActions filesContents )
+		when verbose $ hPutStrLn stderr ("There are " ++ 
+										 show (length elemsUniq) ++ 
+										 " common rows.")
+		mapM_ print' $ elemsUniq
 		exitWith ExitSuccess
 
 	-- Transpose a list.

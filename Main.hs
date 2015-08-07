@@ -443,6 +443,13 @@ main = do
 			lxs             = length xs
 			rightEllipsis   = ell `isInfixOf` after
 
+	-- Naming pattern
+	-- let namingPattern    = "(.*)\\((.*)->(.*)\\)(.*)"
+	-- let namingMatchBool  = (rule =~ pat2 :: Bool)
+	-- let namingMatchResult
+	-- 	| namingMatchBool = (filename =~ namingPattern :: [[String]])
+	-- 	| otherwise       = Nothing
+
 	-- Parse the records
 	let 
 		print' x

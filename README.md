@@ -146,6 +146,19 @@ F H J
 K M O
 ```
 
+#### Enumerating lines
+
+Sometimes it's handy to have line numbers in the data file. For that purpose `rei` offers `-n` flag (or `--enumerate`) which let the user treat the first variable in the rule as a line number (enumeration starts with `1`):
+
+```sh
+> rei -n "# _ _ _ d -> d d #" 0.ssv
+D D 1
+I I 2
+N N 3
+S S 4
+X X 5
+```
+
 
 ### Magic rules
 

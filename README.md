@@ -251,26 +251,6 @@ When you need to transpose the list, you can just do it with `rei`. It can be be
 15,25,35,45,55
 ```
 
-
-### Naming pattern
-
-The default behaviour for `rei` is to give the output to `stdout`. That allows `rei` to be easily embedded  into workflows and pipelines. 
-
-However there's a common case when files are given suffixes or prefixes while mining the data, like `brain_data.csv` and `brain_data_adults_only.csv`. There's an option to shorten the way it can be written in `rei`:
-
-```sh
-rei "x y z -> z" testfile_in.csv > testfile_out.csv
-rei "x y z -> z" "testfile_(in -> out).csv"
-```
-
-The two examples above are almost equivalent, but when using *naming pattern* `(in -> out)` the output file should not exist, otherwise `rei` throws an error with the corresponding message. *Naming pattern* also makes the command shorter and the idea behind it easier to understand:
-
-```sh
-rei "rn _ _ expr3 -> rn expr3" "brain_expression(_all -> _adults).csv"
-```
-
-No space characters, or `<` / `>`, or parenthesis are allowed in file names if *naming pattern* is used.
-
 ### Sophisticated examples
 
 Skip rownames and colnames:

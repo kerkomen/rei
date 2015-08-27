@@ -174,11 +174,10 @@ Here, to *merge* several (typically two) lists means to get the data together. W
 
 ```sh
 > rei merge 0.ssv <(rei -s 1 "a -> a" 0.ssv)
-A B C D E A
-F G H I J F
-K L M N O K
-P Q R S T P
-U V W X Y U
+A B C D E F
+F G H I J K
+K L M N O P
+P Q R S T U
 ```
 
 
@@ -207,6 +206,7 @@ Let's prepare a file to join with `0.ssv` and save it as `01.ssv`.
 ```
 A B C D E
 K L M N O
+X X X X X
 ```
 
 The code for *join* is straightforward:

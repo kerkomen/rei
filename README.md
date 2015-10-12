@@ -121,11 +121,7 @@ For some common file formats `rei` doesn't require a delimiter to be provided in
 * .tsv &rarr; tab ('\t'),
 * .txt &rarr; space (' '),
 * .list &rarr; space (' '),
-* .sam &rarr; tab ('\t'),
-* .vcf &rarr; tab ('\t'),
-* .bed &rarr; tab ('\t'),
-* .gff &rarr; tab ('\t'),
-* .gtf &rarr; tab ('\t')
+* .sam, .vcf, .bed, .gff, .gtf &rarr; tab ('\t'),
 
 The flag `-g` is powerful as it allows for fast format conversion. That's how `rei` may be used to convert from .ssv to .csv:
 

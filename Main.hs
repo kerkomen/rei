@@ -48,6 +48,9 @@ decideF flnm
 	| ".list" `isSuffixOf` flnm = Just ' '
 	| ".sam"  `isSuffixOf` flnm = Just '\t'
 	| ".vcf"  `isSuffixOf` flnm = Just '\t'
+	| ".bed"  `isSuffixOf` flnm = Just '\t'
+	| ".gff"  `isSuffixOf` flnm = Just '\t'
+	| ".gtf"  `isSuffixOf` flnm = Just '\t'
 	| otherwise 		   	    = Nothing
 
 guessF :: String -> Char
@@ -238,7 +241,7 @@ parseArgs argv = case getOpt Permute options argv of
         where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.3.0.0 (pre-alpha). August 2015."
+	hPutStrLn stderr "rei: process lists easily. Version 0.3.1.0 (pre-alpha). October 2015."
 	exitWith ExitSuccess
 
 showHelp _    = do

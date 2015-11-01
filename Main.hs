@@ -11,7 +11,7 @@ import Data.Attoparsec.ByteString.Char8
 import qualified Data.ByteString.Char8 as B
 import Data.Word
 
-import Text.Regex.Posix((=~))
+import Text.Regex.TDFA((=~))
 import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
 				 elem, nub, maximumBy, groupBy, intersect, transpose)
 import Data.List.Split(splitOn, splitWhen)
@@ -299,6 +299,7 @@ main = do
 	let filename
 		| rule == "-"      = error "Provide a rule and a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
 		| rule == "filter" = files !! 1
+		| rule == "reduce" = files !! 1
 		| length files > 0 = files !! 0
 		| otherwise        = error "Provide a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
 
@@ -418,7 +419,7 @@ main = do
 		exitWith ExitSuccess
 
 	-- Filter a list.
-	when (rule' == "filter") $ do
+	when (rule' == "filter" || rule' == "reduce") $ do
 		when verbose $ hPutStrLn stderr "Filtering a file..."
 		let (pattern:several_files)
 			| length files > 1 = files
@@ -432,8 +433,10 @@ main = do
 		let pattern_field  = findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1) !! 0 !! 0
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
-		fileContent <- readFile single_file
-		let filtered = filter (\x -> (x !! pattern_field =~ pattern_regex :: Bool)) (parseActions fileContent)
+		fileContent <- if single_file == "-" then getContents else readFile single_file
+		let filtered
+			| rule' == "filter" = filter (\x -> (x !! pattern_field =~ pattern_regex :: Bool)) (parseActions fileContent)
+			| rule' == "reduce" = filter (\x -> not (x !! pattern_field =~ pattern_regex :: Bool)) (parseActions fileContent)
 		when verbose $ hPutStrLn stderr ("There are " ++ 
 										 show (length filtered) ++ 
 										 " filtered rows.")

@@ -241,7 +241,7 @@ parseArgs argv = case getOpt Permute options argv of
         where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.3.2.0 (pre-alpha). October 2015."
+	hPutStrLn stderr "rei: process lists easily. Version 0.3.3.0 (pre-alpha). November 2015."
 	exitWith ExitSuccess
 
 showHelp _    = do

@@ -281,6 +281,11 @@ mzip a b = map (\(x,y) -> x++y) ( zip a b )
 subtrList :: Eq a => [a] -> [a] -> [a]
 subtrList xs ys = filter (\x -> notElem x ys) xs
 
+filterUnique :: (Eq a) => Int -> [[a]] -> [[a]]
+filterUnique n xs = foldl (\xs x -> if xs == []
+	then [x]
+	else if (x!!n)/=(xs!!0!!n) then x:xs else xs) [] xs
+
 main = do
 	(opts, args) <- getArgs >>= parseArgs
 	-- putStrLn $ "Flags: " ++ show opts
@@ -297,9 +302,10 @@ main = do
 	-- Check the rule
 	let (rule:files) = args
 	let filename
-		| rule == "-"      = error "Provide a rule and a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
-		| rule == "filter" = files !! 1
-		| rule == "reduce" = files !! 1
+		| rule == "-"        = error "Provide a rule and a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
+		| rule == "filter"   = files !! 1
+		| rule == "reduce"   = files !! 1
+		| rule == "distinct" = files !! 1
 		| length files > 0 = files !! 0
 		| otherwise        = error "Provide a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
 
@@ -431,7 +437,7 @@ main = do
 		let pattern_parts' = pattern_parts !! 0
 		let pattern_regex  = strip $ pattern_parts' !! 3
 		let pattern_field  = findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1) !! 0 !! 0
-		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
+		let print'' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
 		fileContent <- if single_file == "-" then getContents else readFile single_file
 		let filtered
@@ -440,9 +446,31 @@ main = do
 		when verbose $ hPutStrLn stderr ("There are " ++ 
 										 show (length filtered) ++ 
 										 " filtered rows.")
-		mapM_ print' $ filtered
+		mapM_ print'' $ filtered
 		exitWith ExitSuccess
 
+	-- Get unique records by field.
+	when (rule' == "distinct") $ do
+		when verbose $ hPutStrLn stderr "Getting distinct records..."
+		let (pattern:several_files)
+			| length files > 1 = files
+			| otherwise        = error "Provide a filtering pattern and a file\n -- Example: `rei filter 'chr source type => type ~ gene' f1.bed`"
+		let single_file    = several_files !! 0
+		let regex_filter   = "(.*[^\\])=>(.*)"         :: String      -- Filtering pattern
+		let pattern_parts  = (pattern =~ regex_filter) :: [[String]]
+		when (length pattern_parts < 1 || length (pattern_parts !! 0) /= 3) $ error "Something's wrong with the filtering pattern. The pattern should consist of a set of column descriptors, the fat arrow, the target field name, and a regular expression.\n-- Example: `rei distinct 'chr source type => chr' f1.bed`"
+		let pattern_parts' = pattern_parts !! 0
+		let pattern_regex  = strip $ pattern_parts' !! 3
+		let pattern_field  = findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1) !! 0 !! 0
+		let print'' x = B.putStrLn $ B.intercalate finalDelim $ x
+		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
+		fileContent <- if single_file == "-" then getContents else readFile single_file
+		let unique = reverse $ filterUnique pattern_field (parseActions fileContent)
+		when verbose $ hPutStrLn stderr ("There are " ++ 
+										 show (length unique) ++ 
+										 " distinct rows.")
+		mapM_ print'' $ unique
+		exitWith ExitSuccess
 
 	let (before, after) 
 		| matchResult == [] = error "Something's wrong with the rule. The rule must have two sets of column descriptors separated by the arrow.\n-- Example: `rei \"a b -> b a\" example.ssv`"
@@ -481,13 +509,13 @@ main = do
 			| maximum order >= length (getParsed x) = error "Too many fields requested. There might be extra fields in the rule, or the wrong delimiter might have been used."
 			| otherwise = B.putStrLn $ B.intercalate (packEither fieldSep fieldSep' x) $ getFields x
 
-		getParsed x = parseLine' x fieldSep
 		getFields x
 			| ell_pos == Nothing = map (pre_x !!) order
 			| otherwise          = map (pre_x !!) $ correctOrder order pre_x
 				where
 					ell_pos       = findIndex (=="...") (words before)
 					pre_x         = getParsed x
+
 
 	-- Read the file and apply the rule
 	let withFile s = mapM_ print' . maybeEnumerate ifEnumerate fieldSep fieldSep'

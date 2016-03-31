@@ -1,6 +1,7 @@
 #!/usr/bin/env runhaskell
 
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleContexts   #-}
 
 import System.Environment(getArgs)
 import System.Console.GetOpt
@@ -10,6 +11,7 @@ import System.Directory(doesFileExist)
 import Data.Attoparsec.ByteString.Char8
 import qualified Data.ByteString.Char8 as B
 import Data.Word
+import Data.String
 
 import Text.Regex.TDFA((=~))
 import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
@@ -113,12 +115,15 @@ splitMargins x xs = (pos', length xs - pos' - 1)
 -- | Check the rule correctness
 -- 1. Every variable on the right must be present on the left
 
+checkRule :: (Eq a, IsString [a]) => [a] -> [a] -> Bool
 checkRule list1 list2
-	| ell `isInfixOf` list1 = (all (flip elem list1) list2) 
-						      && (sole  ell list1)
-	| otherwise             = all (flip elem list1) list2
+	| ell `isInfixOf` list1 = (all (flip elem list1') list2') 
+							  && (sole  ell list1)
+	| otherwise             = all (flip elem list1') list2'
 		where
 			ell = "..."
+			list1' = splitOn " " list1
+			list2' = splitOn " " list2
 
 
 -- | Chapter 2. Functions for parsing the records
@@ -177,12 +182,12 @@ defaultOptions filename = Options {
 	optHelp     = False,
 
 	optVerbose  = False,
-    optDelim    = decideF filename,
-    optNewDelim = decideF filename,
+	optDelim    = decideF filename,
+	optNewDelim = decideF filename,
 
-    optSkip = Just 0,
-    optOmit = Just 0,
-    optEnum = False
+	optSkip = Just 0,
+	optOmit = Just 0,
+	optEnum = False
 }
 
 options :: [OptDescr (Options -> IO Options)]
@@ -208,14 +213,14 @@ setNewDelim arg opt = return opt { optNewDelim = if length (readLiteral arg) > 0
 
 setSkip arg opt = return opt { optSkip = let argParsed = readMaybe arg 
 											in if (argParsed == Nothing)
-							       			       then error "The number of lines to skip should be an integer" 
-							       			   	   else argParsed
+												   then error "The number of lines to skip should be an integer" 
+												   else argParsed
 							 }
 
 setOmit arg opt = return opt { optOmit = let argParsed = readMaybe arg 
 											in if (argParsed == Nothing)
-							       			       then error "The number of lines to omit should be an integer" 
-							       			   	   else argParsed
+												   then error "The number of lines to omit should be an integer" 
+												   else argParsed
 							 }
 
 setEnum opt = return opt { optEnum = True }
@@ -231,18 +236,18 @@ readLiteral s = read ('"' : s ++ "\"") :: String
 
 parseArgs argv = case getOpt Permute options argv of
  
-        (args,fs,[]) -> do
-            let files = if null fs then ["-"] else fs
-            return (args, files)
+		(args,fs,[]) -> do
+			let files = if null fs then ["-"] else fs
+			return (args, files)
  
-        (_,_,errs)	 -> do
-            hPutStrLn stderr (concat errs ++ usageInfo header options)
-            exitWith (ExitFailure 1)
+		(_,_,errs)	 -> do
+			hPutStrLn stderr (concat errs ++ usageInfo header options)
+			exitWith (ExitFailure 1)
  
-        where header = "Usage: rei [options] rule file"
+		where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.3.4.1 (alpha). Martch 2016."
+	hPutStrLn stderr "rei: process lists easily. Version 0.3.5 (alpha). March 2016."
 	exitWith ExitSuccess
 
 showHelp _    = do
@@ -316,15 +321,15 @@ main = do
 			  optVerbose  = verbose
 			, optVersion  = versionOnly
 			, optDelim    = fieldSep
-            , optNewDelim = fieldSep'
-            , optSkip     = linesToSkip
-            , optOmit     = linesToOmit
-            , optEnum     = ifEnumerate } = opts'
+			, optNewDelim = fieldSep'
+			, optSkip     = linesToSkip
+			, optOmit     = linesToOmit
+			, optEnum     = ifEnumerate } = opts'
 
-    -- Check if the delimiter provided if the file format is unknown
-   	if fieldSep == Nothing 
-   		then hPutStrLn stderr "Warning: the delimiter is not provided and can not be deduced from the file extension."
-   		else return ()
+	-- Check if the delimiter provided if the file format is unknown
+	if fieldSep == Nothing 
+		then hPutStrLn stderr "Warning: the delimiter is not provided and can not be deduced from the file extension."
+		else return ()
 
 	-- Parse the rule
 	let pat = "(.*[^\\])->(.*)" :: String
@@ -475,7 +480,7 @@ main = do
 
 	let (before, after) 
 		| matchResult == [] = error "Something's wrong with the rule. The rule must have two sets of column descriptors separated by the arrow.\n-- Example: `rei \"a b -> b a\" example.ssv`"
-		| otherwise         = tuplify2 . drop 1 $ matchResult !! 0
+		| otherwise         = tuplify2 . map strip . drop 1 $ matchResult !! 0
 			where 
 				matchResult = (rule =~ pat :: [[String]])
 	-- print $ splitOn " " rule

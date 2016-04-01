@@ -292,6 +292,14 @@ filterUnique n xs = foldl (\xs x -> if xs == []
 	then [x]
 	else if (x!!n)/=(xs!!0!!n) then x:xs else xs) [] xs
 
+slice :: [Int] -> [a] -> [a]
+slice is xs = map (xs !!) is
+
+filterUniqueMulti :: (Eq a) => [Int] -> [[a]] -> [[a]]
+filterUniqueMulti ns xs = foldl(\xs x -> if xs == []
+	then [x]
+	else if (slice ns x)/=(slice ns (xs !! 0)) then x:xs else xs) [] xs 
+
 main = do
 	(opts, args) <- getArgs >>= parseArgs
 	-- putStrLn $ "Flags: " ++ show opts
@@ -460,18 +468,17 @@ main = do
 		when verbose $ hPutStrLn stderr "Getting distinct records..."
 		let (pattern:several_files)
 			| length files > 1 = files
-			| otherwise        = error "Provide a filtering pattern and a file\n -- Example: `rei filter 'chr source type => type ~ gene' f1.bed`"
+			| otherwise        = error "Provide a pattern to select distinct lines and a file\n -- Example: `rei distinct 'chr source type => type' f1.bed`"
 		let single_file    = several_files !! 0
-		let regex_filter   = "(.*[^\\])=>(.*)"         :: String      -- Filtering pattern
+		let regex_filter   = "(.*[^\\])=>(.*)"         :: String      -- Pattern
 		let pattern_parts  = (pattern =~ regex_filter) :: [[String]]
 		when (length pattern_parts < 1 || length (pattern_parts !! 0) /= 3) $ error "Something's wrong with the filtering pattern. The pattern should consist of a set of column descriptors, the fat arrow, the target field name, and a regular expression.\n-- Example: `rei distinct 'chr source type => chr' f1.bed`"
 		let pattern_parts' = pattern_parts !! 0
-		let pattern_regex  = strip $ pattern_parts' !! 3
-		let pattern_field  = findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1) !! 0 !! 0
+		let pattern_fields  = concat $ findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1)
 		let print'' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines
 		fileContent <- if single_file == "-" then getContents else readFile single_file
-		let unique = reverse $ filterUnique pattern_field (parseActions fileContent)
+		let unique = reverse $ filterUniqueMulti pattern_fields (parseActions fileContent)
 		when verbose $ hPutStrLn stderr ("There are " ++ 
 										 show (length unique) ++ 
 										 " distinct rows.")

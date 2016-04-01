@@ -1,0 +1,17 @@
+flags: {}
+extra-package-dbs: []
+packages:
+- '.'
+extra-deps:
+- attoparsec-0.13.0.1
+- hashable-1.2.4.0
+- mtl-2.2.1
+- parsec-3.1.9
+- primitive-0.6.1.0
+- regex-base-0.93.2
+- regex-tdfa-1.2.1
+- scientific-0.3.4.6
+- split-0.2.3
+- text-1.2.2.1
+- vector-0.11.0.0
+resolver: ghc-7.10

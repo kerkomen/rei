@@ -27,6 +27,9 @@ rei condense2 example_melted.csv
 rei join example_foo.ssv example_bar.ssv
 rei subtract minuend.csv subtrahend.csv
 rei transpose example_matrix.ssv
+rei filter "_ _ chr => chr ~ chr21" elements.tsv
+rei reduce "chr => chr ~ chrM" exons.bed
+rei distinct "chr _ type => type chr" transcripts.gtf
 ```
 
 ### Defining the rule 
@@ -161,7 +164,7 @@ X X 5
 
 ### Magic rules
 
-There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, subtract*. Each *magic rule* has its own syntax.
+There's are some common tasks that one may want to do with lists and tables, and it seems convenient to include them in `rei`: *melt2, condense2, merge,  unite, join, subtract, filter, reduce, distinct*. Each *magic rule* has its own syntax.
 
 #### *Melt*ing and *condens*ing
 
@@ -219,7 +222,7 @@ K,L,M,N,O
 
 #### Retrieving unique data with *subtr*
 
-Finding differences between multiple lists with a clear and concise syntax is not a trivial task. To deal with this, `rei` offers a *magic rule* called *subtract* (or *subtr* for short). It behaves exactly as it is titled: takes the first file and removes each row in it only if the row is present in any of the following files.
+Finding differences between multiple lists with a clear and concise syntax is not a trivial task. To deal with this, `rei` offers a *magic rule* called `subtract` (or `subtr` for short). It behaves exactly as it is titled: takes the first file and removes each row in it only if the row is present in any of the following files.
 
 ```sh
 > tail -n 1 0.ssv > 02.ssv
@@ -250,6 +253,46 @@ When you need to transpose the list, you can just do it with `rei`. It can be be
 15,25,35,45,55
 ```
 
+#### *Filter*ing data
+
+For selecting lines that meet some condition use `filter` rule. Its syntax is simple:
+
+```
+> rei filter "a b => a ~ A" 0.ssv
+A B C D E
+```
+
+The *filter* word should be followed by a rule consisting of two parts — *before* and *patern*. It is similar to the standard rule in `rei`, but in the *filter* case these two parts should be separated by a fat arrow (`=>`). The pattern can be defined as `field_name ~ expression`. One may use a regular expression as an *expression* in the *pattern* part of the rule.
+
+You can use `reduce` rule for negative filtering:
+
+```
+rei reduce "a b => a ~ A|U" 0.ssv
+F G H I J
+K L M N O
+P Q R S T
+```
+
+#### Selecting *distinct* lines
+
+Two lines are called *distinct* here if they are **consecutive** lines and have the same value in some fields.
+
+Let's prepare a file `2.ssv`:
+
+```
+! @ ?
+! * *
+? * ?
+```
+
+Then select lines that are distinct in terms of the second field:
+
+```
+> rei distinct "_ 2 _ => 2" 2.ssv
+! @ ?
+! * *
+```
+
 ### Sophisticated examples
 
 Skip rownames and colnames:
@@ -261,8 +304,12 @@ Skip rownames and colnames:
 It's easy to merge several files, and turn the output to .csv:
 
 ```sh
-> rei -f ' ' -g ',' unite <(rei "a b c -> a c" 0.ssv) <(rei "x y z -> y z" 1.ssv)
-TODO
+> rei -f ' ' -g ',' unite <(rei -t 3 "a b c -> a c" 0.ssv) <(rei -s2 "x y z -> y z" 1.ssv)
+A,C
+F,H
+32,33
+42,43
+52,53
 ```
 
 ### Real-world examples

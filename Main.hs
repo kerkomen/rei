@@ -15,7 +15,8 @@ import Data.String
 
 import Text.Regex.TDFA((=~))
 import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
-				 elem, nub, maximumBy, groupBy, intersect, transpose)
+				 elem, nub, maximumBy, groupBy, intersect, transpose, 
+				 intercalate)
 import Data.List.Split(splitOn, splitWhen)
 import Data.Char(isLetter, isNumber, isSymbol, isSeparator, isPunctuation)
 import Data.Map(fromListWith, toList)
@@ -168,9 +169,10 @@ data Options = Options  {
 	optDelim    :: Maybe Char,
 	optNewDelim :: Maybe Char,
 
-	optSkip :: Maybe Int,
-	optOmit :: Maybe Int,
-	optEnum :: Bool
+	optSkip   :: Maybe Int,
+	optOmit   :: Maybe Int,
+	optEnum   :: Bool,
+	optColnum :: Bool
 	}
 
 -- Handy if only version or help is needed
@@ -185,9 +187,10 @@ defaultOptions filename = Options {
 	optDelim    = decideF filename,
 	optNewDelim = decideF filename,
 
-	optSkip = Just 0,
-	optOmit = Just 0,
-	optEnum = False
+	optSkip   = Just 0,
+	optOmit   = Just 0,
+	optEnum   = False,
+	optColnum = False
 }
 
 options :: [OptDescr (Options -> IO Options)]
@@ -198,7 +201,8 @@ options = [ Option ['V'] ["version"]  (NoArg showVersion)  	   	"Show version nu
 			Option ['g'] ["newdelim"] (ReqArg setNewDelim " ")  "Define delimiter in the output file",
 			Option ['s'] ["skip"] 	  (ReqArg setSkip "0")     	"Set number of lines to skip",
 			Option ['t'] ["omit"] 	  (ReqArg setOmit "0")     	"Set number of lines to omit in the end of the file",
-			Option ['n'] ["enum"] 	  (NoArg setEnum)     		"Treat the line number as the first column of the input."
+			Option ['n'] ["enum"] 	  (NoArg setEnum)     		"Treat the line number as the first column of the input.",
+			Option ['a'] ["colnum"]   (NoArg setColnum)   		"Access the columns by their number."
 		  ]
 
 setDelim    arg opt = return opt { optDelim = if length (readLiteral arg) > 0 
@@ -225,6 +229,7 @@ setOmit arg opt = return opt { optOmit = let argParsed = readMaybe arg
 
 setEnum opt = return opt { optEnum = True }
 
+setColnum opt = return opt { optColnum = True }
 
 setVerbose opt = return opt { optVerbose = True }
 
@@ -300,6 +305,9 @@ filterUniqueMulti ns xs = foldl(\xs x -> if xs == []
 	then [x]
 	else if (slice ns x)/=(slice ns (xs !! 0)) then x:xs else xs) [] xs 
 
+toInt :: String -> Int
+toInt x = read x :: Int
+
 main = do
 	(opts, args) <- getArgs >>= parseArgs
 	-- putStrLn $ "Flags: " ++ show opts
@@ -320,8 +328,8 @@ main = do
 		| rule == "filter"   = files !! 1
 		| rule == "reduce"   = files !! 1
 		| rule == "distinct" = files !! 1
-		| length files > 0 = files !! 0
-		| otherwise        = error "Provide a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
+		| length files > 0   = files !! 0
+		| otherwise          = error "Provide a filename\n--  Example: `rei \"a b -> b a\" example.ssv`"
 
 	-- Parse options
 	opts' <- foldl (>>=) (return $ defaultOptions filename) opts
@@ -332,7 +340,8 @@ main = do
 			, optNewDelim = fieldSep'
 			, optSkip     = linesToSkip
 			, optOmit     = linesToOmit
-			, optEnum     = ifEnumerate } = opts'
+			, optEnum     = ifEnumerate
+			, optColnum   = ifColnum } = opts'
 
 	-- Check if the delimiter provided if the file format is unknown
 	if fieldSep == Nothing 
@@ -495,11 +504,13 @@ main = do
 	-- print $ strip after
 	let ell = "..."
 
-	let order
+	let order'
 		| checkRule before after = concat $ findFstInSnd (words after) (words before)
 		| sole' ell before && sole' ell after = error "Something's wrong with the rule. There might be a variable which is unique to the right part."
 		| otherwise = error "Something's wrong with the rule. There might be multiple ellipsis signs."
-				
+	
+	let afterInt = map (toInt . strip) $ splitOn " " after
+	let order = if (ifColnum && length before == 0) then afterInt else order'
 
 	let correctOrder ns xs = ifEl
 		where
@@ -569,3 +580,8 @@ main = do
 	when verbose $ hPutStrLn stderr (case ifEnumerate of
 				True  -> "-- Line enumeration is enabled."
 				False -> "-- Lines are not enumerated." )
+
+
+	when verbose $ hPutStrLn stderr (case ifColnum of
+				True  -> "-- Accessing columns by their number is enabled."
+				False -> "-- Accessing columns by user-defined names." )

@@ -40,7 +40,7 @@ The arrow sign should be surrounded with spaces. Like this: `.. -> ..`. The fiel
 
 ### Providing the file
 
-There's several ways to provide `rei` with the content of the file. The first one is the-most-obvious-way-you-can-think-of: just provide the path to the file. Sometimes it is helpful to use process substitution (? TODO). And if there's a need to pipe the content, just write a dash («-»). Well, here's the code:
+There's several ways to provide `rei` with the content of the file. The first one is the-most-obvious-way-you-can-think-of: just provide the path to the file. Sometimes it is helpful to use [process substitution](https://www.gnu.org/software/bash/manual/html_node/Process-Substitution.html). And if there's a need to pipe the content, just write a dash («-»). Well, here's the code:
 
 ```sh
 > rei "x -> x" 0.ssv

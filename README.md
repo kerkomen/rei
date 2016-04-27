@@ -332,7 +332,7 @@ TODO
 
 ## Dev
 
-`rei` is written in Haskell, uses [regular expressions](http://hackage.haskell.org/package/regex-posix) to parse the rule and [Attoparsec](https://hackage.haskell.org/package/attoparsec) to parse the file provided.
+`rei` is written in Haskell, uses [regular expressions](http://hackage.haskell.org/package/regex-tdfa) to parse the rule and [Attoparsec](https://hackage.haskell.org/package/attoparsec) to parse the file provided.
 
 ### Requests
 

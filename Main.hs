@@ -252,7 +252,7 @@ parseArgs argv = case getOpt Permute options argv of
 		where header = "Usage: rei [options] rule file"
 
 showVersion _ = do
-	hPutStrLn stderr "rei: process lists easily. Version 0.3.5.1 (alpha). March 2016."
+	hPutStrLn stderr "rei: process lists easily. Version 0.3.7 (alpha). April 2016."
 	exitWith ExitSuccess
 
 showHelp _    = do
@@ -458,6 +458,7 @@ main = do
 		let pattern_parts  = (pattern =~ regex_filter)      :: [[String]]
 		when (length pattern_parts < 1 || length (pattern_parts !! 0) /= 4) $ error "Something's wrong with the filtering pattern. The pattern should consist of a set of column descriptors, the fat arrow, the target field name, and a regular expression.\n-- Example: `rei filter 'chr source type => type ~ gene' f1.bed`"
 		let pattern_parts' = pattern_parts !! 0
+		when (not $ checkRule (pattern_parts' !! 1) (pattern_parts' !! 2)) $ error "Something's wrong with the filtering pattern. There might be a variable which is unique to the right part."
 		let pattern_regex  = strip $ pattern_parts' !! 3
 		let pattern_field  = findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1) !! 0 !! 0
 		let print'' x = B.putStrLn $ B.intercalate finalDelim $ x
@@ -483,6 +484,7 @@ main = do
 		let pattern_parts  = (pattern =~ regex_filter) :: [[String]]
 		when (length pattern_parts < 1 || length (pattern_parts !! 0) /= 3) $ error "Something's wrong with the filtering pattern. The pattern should consist of a set of column descriptors, the fat arrow, the target field name, and a regular expression.\n-- Example: `rei distinct 'chr source type => chr' f1.bed`"
 		let pattern_parts' = pattern_parts !! 0
+		when (not $ checkRule (pattern_parts' !! 1) (pattern_parts' !! 2)) $ error "Something's wrong with the filtering pattern. There might be a variable which is unique to the right part."
 		let pattern_fields  = concat $ findFstInSnd (words $ pattern_parts' !! 2) (words $ pattern_parts' !! 1)
 		let print'' x = B.putStrLn $ B.intercalate finalDelim $ x
 		let parseActions = map getParsed . take' linesToOmit . drop' linesToSkip . lines

@@ -14,8 +14,8 @@ import Data.Word
 import Data.String
 
 import Text.Regex.TDFA((=~))
-import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices, 
-				 elem, nub, maximumBy, groupBy, intersect, transpose, 
+import Data.List(isSuffixOf, isInfixOf, findIndex, findIndices,
+	             elem, nub, maximumBy, groupBy, intersect, transpose, 
 				 intercalate)
 import Data.List.Split(splitOn, splitWhen)
 import Data.Char(isLetter, isNumber, isSymbol, isSeparator, isPunctuation)
@@ -273,20 +273,58 @@ unlessM b s = b >>= (\t -> unless t s)
 
 -- | Chapter 5. Magic functions
 
-condense2 :: Eq a => [[a]] -> [[a]]
-condense2 input = zipWith (:) keys values
-	where 
+condense :: Eq a => [[a]] -> [[a]]
+condense input = zipWith (:) keys values
+	where
 		grouped = groupBy ((==) `on` fst) . map tuplify2 $ input
 		keys    = map (fst . (!! 0)) grouped
 		values  = map (map snd) grouped
 
+condense2 :: Eq a => [[a]] -> [[a]]
+condense2 input = zipWith (++) keys values
+	where 
+		grouped = groupBy ((==) `on` (Prelude.take 2)) input
+		keys    = map (Prelude.take 2 . (!! 0)) grouped
+		values  = map (map (!! 2)) grouped
+
+condense3 :: Eq a => [[a]] -> [[a]]
+condense3 input = zipWith (++) keys values
+	where 
+		grouped = groupBy ((==) `on` (Prelude.take 3)) input
+		keys    = map (Prelude.take 3 . (!! 0)) grouped
+		values  = map (map (!! 3)) grouped
+
 melter :: [t] -> [[t]]
-melter []       = []
-melter (a:b:[]) = [ [a,b] ]
-melter (a:b:xs) = ( [a,b]:(melter (a:xs)) )
+melter x = case x of
+	[]        -> []
+	(a:b:[])  -> [ [a,b] ]
+	(a:b:xs)  -> ( [a,b]:(melter (a:xs)) )
+	otherwise -> error "There might be not enough columns to melt the table"
+
+melt :: [[t]] -> [[t]]
+melt input = foldr (++) [] . map melter $ input
+
+melter2 :: [t] -> [[t]]
+melter2 x = case x of
+	[]         -> []
+	(a:b:c:[]) -> [ [a,b,c] ]
+	(a:b:c:xs) -> ( [a,b,c]:(melter2 (a:b:xs)) )
+	otherwise  -> error "Not enough columns to melt the table. You may want to use `melt`"
+
 
 melt2 :: [[t]] -> [[t]]
-melt2 input = foldr (++) [] . map melter $ input
+melt2 input = foldr (++) [] . map melter2 $ input
+
+melter3 :: [t] -> [[t]]
+melter3 x = case x of
+	[]           -> []
+	(a:b:c:d:[]) -> [ [a,b,c,d] ]
+	(a:b:c:d:xs) -> ( [a,b,c,d]:(melter3 (a:b:c:xs)) )
+	otherwise    -> error "Not enough columns to melt the table. You may want to use `melt2`"
+
+
+melt3 :: [[t]] -> [[t]]
+melt3 input = foldr (++) [] . map melter3 $ input
 
 mzip :: [[a]] -> [[a]] -> [[a]]
 mzip a b = map (\(x,y) -> x++y) ( zip a b )
@@ -384,18 +422,22 @@ main = do
 		mapM_ print' $ foldl1 mzip ( map parseActions filesContents )
 		exitWith ExitSuccess
 
-	-- Condense the first two columns of the file
-	when (rule' == "condense2") $ do
+	-- Condense considering first two/three/four columns of the file as keys
+	when (rule' == "condense" || rule' == "condense2" || rule' == "condense3") $ do
 		when verbose $ hPutStrLn stderr "Condensing a file..."
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
-		mapM_ print' . condense2 . map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
+		mapM_ print' 
+			. (if rule' == "condense3" then condense3 else if rule' == "condense2" then condense2 else condense)
+			. map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
 		exitWith ExitSuccess
 
-	-- Melt the file into two-column file
-	when (rule' == "melt2") $ do
+	-- Melt the file into two/three/four-column file
+	when (rule' == "melt" || rule' == "melt2" || rule' == "melt3") $ do
 		when verbose $ hPutStrLn stderr "Melting a file..."
 		let print' x = B.putStrLn $ B.intercalate finalDelim $ x
-		mapM_ print' . melt2 . map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
+		mapM_ print' 
+			. (if rule' == "melt3" then melt3 else if rule' == "melt2" then melt2 else melt)
+			. map getParsed . take' linesToOmit . drop' linesToSkip . lines =<< open filename
 		exitWith ExitSuccess
 
 	-- Concatenate files, row-wise

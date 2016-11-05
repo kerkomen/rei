@@ -201,8 +201,8 @@ options = [ Option ['V'] ["version"]  (NoArg showVersion)  	   	"Show version nu
 			Option ['g'] ["newdelim"] (ReqArg setNewDelim " ")  "Define delimiter in the output file",
 			Option ['s'] ["skip"] 	  (ReqArg setSkip "0")     	"Set number of lines to skip",
 			Option ['t'] ["omit"] 	  (ReqArg setOmit "0")     	"Set number of lines to omit in the end of the file",
-			Option ['n'] ["enum"] 	  (NoArg setEnum)     		"Treat the line number as the first column of the input.",
-			Option ['a'] ["colnum"]   (NoArg setColnum)   		"Access the columns by their number."
+			Option ['n'] ["enum"] 	  (NoArg setEnum)     		"Treat the line number as the first column of the input",
+			Option ['a'] ["colnum"]   (NoArg setColnum)   		"Access the columns by their number"
 		  ]
 
 setDelim    arg opt = return opt { optDelim = if length (readLiteral arg) > 0 
@@ -257,7 +257,9 @@ showVersion _ = do
 
 showHelp _    = do
 	let header = "\n\trei is designed to process lists easily\n"
-	hPutStrLn stderr (usageInfo header options)
+	let magich = "\n  Magic rules:\n"
+	let magic  = "  merge, unite, join, subtract, transpose, filter, reduce, distinct\n"
+	hPutStrLn stderr (usageInfo (header ++ magich ++ magic) options)
 	exitWith ExitSuccess
 
 
@@ -506,13 +508,14 @@ main = do
 	-- print $ strip after
 	let ell = "..."
 
-	let order'
-		| checkRule before after = concat $ findFstInSnd (words after) (words before)
+	let afterInt = map (toInt . strip) $ splitOn " " after
+
+	let order
+		| ifColnum && length before == 0      = afterInt
+		| checkRule before after              = concat $ findFstInSnd (words after) (words before)
 		| sole' ell before && sole' ell after = error "Something's wrong with the rule. There might be a variable which is unique to the right part."
 		| otherwise = error "Something's wrong with the rule. There might be multiple ellipsis signs."
-	
-	let afterInt = map (toInt . strip) $ splitOn " " after
-	let order = if (ifColnum && length before == 0) then afterInt else order'
+
 
 	let correctOrder ns xs = ifEl
 		where

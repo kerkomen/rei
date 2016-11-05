@@ -349,8 +349,8 @@ TODO
 You were downloading a set of `fastq` files from a list `files.list` when the connection was interrupted. It is handy to use `rei` to generate a list a files that were not downloaded:
 
 ```sh
-ls *fastq.gz > downloaded.list
-rei subtract files.list downloaded.list > to_download.list
+> ls *fastq.gz > downloaded.list
+> rei subtract files.list downloaded.list > to_download.list
 ```
 
 ## Notes

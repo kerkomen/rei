@@ -161,6 +161,29 @@ S S 4
 X X 5
 ```
 
+#### Addressing columns with numbers
+
+It happens that the columns in the file should be addressed with their indices. For those cases `rei` provides `-a` — from *awk-like* — flag (or `--colnum`). When using `rei -a` no *before* part of the rule should be provided. Please, note that the arrow `->` should be preceded by a space in this case:
+
+```sh
+> rei -a ' -> 0 3' 0.ssv
+A D
+F I
+K N
+P S
+U X
+```
+
+It is recommended to use `-a` with the `-n` flag so that the first column can be referred to as `1` and the line number as `0`:
+
+```sh
+> rei -an ' -> 1' 0.ssv
+A
+F
+K
+P
+U
+```
 
 ### Magic rules
 

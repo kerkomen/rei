@@ -210,7 +210,6 @@ P Q R S T U
 
 Uniting, or concatenating, several files can be achieved with `unite` rule. This rule has a synonym: `concatenate`, or `concat` for short. While simple file concatenation can be achieved using UNIX  `cat` tool, `rei unite <...>` has to acknowledge the delimiter symbol (which should be the same for all input files) and can change the delimiter symbol for the whole output or skip / omit lines.
 
-
 ```sh
 > rei unite 0.ssv <(head -n 1 0.ssv)
 A B C D E
@@ -290,7 +289,7 @@ The *filter* word should be followed by a rule consisting of two parts — *befo
 You can use `reduce` rule for negative filtering:
 
 ```
-rei reduce "a b => a ~ A|U" 0.ssv
+> rei reduce "a b => a ~ A|U" 0.ssv
 F G H I J
 K L M N O
 P Q R S T
@@ -344,6 +343,15 @@ TODO
 - date and smth else
 - uniting data
 - merging data
+
+#### Finding files that were not downloaded
+
+You were downloading a set of `fastq` files from a list `files.list` when the connection was interrupted. It is handy to use `rei` to generate a list a files that were not downloaded:
+
+```sh
+ls *fastq.gz > downloaded.list
+rei subtract files.list downloaded.list > to_download.list
+```
 
 ## Notes
 

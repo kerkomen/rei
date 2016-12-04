@@ -117,7 +117,6 @@ splitMargins x xs = (pos', length xs - pos' - 1)
 -- 1. Every variable on the right must be present on the left
 
 checkRule :: [Char] -> [Char] -> Bool
---checkRule :: (Eq a, IsString [a]) => [a] -> [a] -> Bool
 checkRule list1 list2
 	| ell `isInfixOf` list1 = (all (flip elem list1') list2') 
 							  && (sole  ell list1)
